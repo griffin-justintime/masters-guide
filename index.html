@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Masters Coverage Guide</title>
+<style>
+:root {
+  --base03: #002b36; --base02: #073642; --base01: #586e75;
+  --base00: #657b83; --base0: #839496; --base1: #93a1a1;
+  --base2: #eee8d5; --base3: #fdf6e3;
+  --yellow: #b58900; --orange: #cb4b16; --red: #dc322f;
+  --magenta: #d33682; --violet: #6c71c4; --blue: #268bd2;
+  --cyan: #2aa198; --green: #859900;
+  --free: #859900; --paid: #cb4b16; --cable: #b58900;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--base03); color: var(--base0); min-height: 100vh; }
+.container { max-width: 720px; margin: 0 auto; padding: 12px; }
+h1 { color: var(--green); font-size: 1.4rem; text-align: center; padding: 12px 0 4px; }
+.subtitle { text-align: center; color: var(--base01); font-size: 0.85rem; margin-bottom: 12px; }
+.search-wrap { position: relative; margin-bottom: 10px; }
+.search-wrap input { width: 100%; padding: 12px 40px 12px 14px; font-size: 1rem; border: 1px solid var(--base01); border-radius: 8px; background: var(--base02); color: var(--base1); outline: none; }
+.search-wrap input:focus { border-color: var(--cyan); }
+.search-wrap .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--base01); font-size: 1.2rem; cursor: pointer; display: none; }
+.tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+.tab { flex: 1; padding: 10px 0; text-align: center; background: var(--base02); border: 1px solid var(--base01); border-radius: 6px; color: var(--base01); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.15s; }
+.tab.active { background: var(--green); color: var(--base03); border-color: var(--green); }
+.tab:hover:not(.active) { border-color: var(--base0); color: var(--base0); }
+.filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.filter-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--base01); background: var(--base02); color: var(--base0); font-size: 0.8rem; cursor: pointer; }
+.filter-btn.active { background: var(--cyan); color: var(--base03); border-color: var(--cyan); }
+.player-card { background: var(--base02); border-radius: 10px; padding: 14px; margin-bottom: 10px; border: 1px solid transparent; }
+.player-card:hover { border-color: var(--base01); }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.player-name { font-size: 1.1rem; font-weight: 700; color: var(--base2); }
+.group-info { color: var(--base01); font-size: 0.8rem; margin-top: 2px; }
+.tee-time { font-size: 0.95rem; color: var(--cyan); font-weight: 600; }
+.star-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 4px; line-height: 1; }
+.star-btn.fav { color: var(--yellow); }
+.star-btn:not(.fav) { color: var(--base01); }
+.timeline { position: relative; margin: 10px 0 6px; height: 36px; background: var(--base03); border-radius: 6px; overflow: hidden; }
+.time-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--base01); margin-bottom: 2px; padding: 0 2px; }
+.tl-block { position: absolute; top: 0; height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 600; color: var(--base03); overflow: hidden; white-space: nowrap; min-width: 2px; opacity: 0.85; cursor: default; }
+.tl-block:hover { opacity: 1; z-index: 2; }
+.tl-block.free { background: var(--free); }
+.tl-block.paid { background: var(--paid); }
+.tl-block.cable { background: var(--yellow); }
+.tl-block.oncourse { background: var(--cyan); opacity: 0.3; height: 100%; }
+.coverage-list { margin-top: 8px; }
+.cov-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; padding: 3px 0; color: var(--base0); }
+.cov-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cov-dot.free { background: var(--free); }
+.cov-dot.paid { background: var(--paid); }
+.cov-dot.cable { background: var(--yellow); }
+.cov-label { color: var(--base01); }
+.no-results { text-align: center; padding: 40px 20px; color: var(--base01); }
+.legend { background: var(--base02); border-radius: 10px; padding: 14px; margin-top: 16px; }
+.legend h3 { color: var(--base1); font-size: 0.95rem; margin-bottom: 10px; }
+.legend-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--base03); font-size: 0.82rem; }
+.legend-item:last-child { border-bottom: none; }
+.legend-badge { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; color: var(--base03); }
+.legend-badge.free { background: var(--free); }
+.legend-badge.paid { background: var(--paid); }
+.legend-badge.cable { background: var(--yellow); }
+.missed-section { background: var(--base02); border-radius: 10px; padding: 14px; margin-top: 10px; }
+.missed-section h3 { color: var(--base1); font-size: 0.95rem; margin-bottom: 8px; }
+.missed-item { font-size: 0.82rem; padding: 4px 0; color: var(--base0); }
+.missed-item strong { color: var(--base1); }
+.weekend-note { background: var(--base02); border: 1px dashed var(--base01); border-radius: 8px; padding: 14px; text-align: center; color: var(--base01); font-size: 0.85rem; margin: 10px 0; }
+.weekend-note strong { color: var(--base0); }
+@media(max-width:480px) {
+  .container { padding: 8px; }
+  h1 { font-size: 1.2rem; }
+  .player-name { font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>&#9971; 2026 Masters Coverage Guide</h1>
+  <p class="subtitle">Apr 9–12 · Augusta National · Find your player, find the coverage</p>
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Search player name..." autocomplete="off">
+    <button class="clear-btn" id="clearBtn" onclick="clearSearch()">×</button>
+  </div>
+  <div class="tabs" id="dayTabs"></div>
+  <div class="filter-row">
+    <button class="filter-btn" id="favFilter" onclick="toggleFavFilter()">★ My Players</button>
+    <button class="filter-btn" id="freeFilter" onclick="toggleFreeOnly()">Free Coverage Only</button>
+  </div>
+  <div id="results"></div>
+  <div class="legend" id="legend">
+    <h3>Platform Guide</h3>
+    <div class="legend-item"><span class="legend-badge free">FREE</span><div><strong>Masters.com / Masters App</strong> — Featured Groups, Amen Corner, Holes 4-5-6, Holes 15-16, Every Shot Every Hole. No account needed.</div></div>
+    <div class="legend-item"><span class="legend-badge free">FREE</span><div><strong>CBS</strong> (Sat–Sun 2–7pm) — Over-the-air antenna. No subscription.</div></div>
+    <div class="legend-item"><span class="legend-badge paid">PAID</span><div><strong>ESPN / ESPN App</strong> — Thu–Fri 3–7:30pm live, 8–11pm replay. Requires cable or streaming sub (~$11/mo).</div></div>
+    <div class="legend-item"><span class="legend-badge paid">PAID</span><div><strong>Paramount+</strong> — Featured Groups, Amen Corner, Holes 15-16 streams + Sat–Sun 12–2pm early coverage. ~$8/mo.</div></div>
+    <div class="legend-item"><span class="legend-badge paid">PAID</span><div><strong>Prime Video</strong> — Featured Groups, Amen Corner, Holes 15-16 + Inside Amen Corner exclusive + Thu–Fri 1–3pm broadcast. ~$15/mo.</div></div>
+    <div class="legend-item"><span class="legend-badge cable">CABLE</span><div><strong>DirecTV</strong> — Featured Groups, Amen Corner, Holes 15-16 streams. Requires DirecTV subscription.</div></div>
+  </div>
+  <div class="missed-section">
+    <h3>Missed It? Where to Find Highlights</h3>
+    <div class="missed-item"><strong>Masters.com</strong> — Every Shot, Every Hole replays available free (same day / next day)</div>
+    <div class="missed-item"><strong>ESPN</strong> — Replay broadcast Thu/Fri 8–11pm ET</div>
+    <div class="missed-item"><strong>YouTube (Masters channel)</strong> — Official highlights posted same evening, free</div>
+    <div class="missed-item"><strong>Masters App</strong> — On-demand replays of all streams</div>
+  </div>
+</div>
+
+<script>
+const DAYS = [
+  { key: 'thu', label: 'Thu 4/9', short: 'Thu' },
+  { key: 'fri', label: 'Fri 4/10', short: 'Fri' },
+  { key: 'sat', label: 'Sat 4/11', short: 'Sat' },
+  { key: 'sun', label: 'Sun 4/12', short: 'Sun' }
+];
+
+// Coverage windows: [startHour (decimal), endHour, label, type (free/paid/cable), shortLabel]
+const COVERAGE = {
+  thu: [
+    [9.25, 19.5, 'Featured Groups — Masters.com FREE', 'free', 'Featured'],
+    [8.75, 15.5, 'Holes 4,5,6 — Masters.com FREE', 'free', '4-5-6'],
+    [10.75, 18, 'Amen Corner — Masters.com FREE', 'free', 'Amen'],
+    [11.75, 19, 'Holes 15,16 — Masters.com FREE', 'free', '15-16'],
+    [13, 15, 'Prime Video Broadcast', 'paid', 'Prime'],
+    [15, 19.5, 'ESPN Broadcast', 'paid', 'ESPN'],
+    [20, 23, 'ESPN Replay', 'cable', 'ESPN Re'],
+  ],
+  fri: [
+    [9.25, 19.5, 'Featured Groups — Masters.com FREE', 'free', 'Featured'],
+    [8.75, 15.5, 'Holes 4,5,6 — Masters.com FREE', 'free', '4-5-6'],
+    [10.75, 18, 'Amen Corner — Masters.com FREE', 'free', 'Amen'],
+    [11.75, 19, 'Holes 15,16 — Masters.com FREE', 'free', '15-16'],
+    [13, 15, 'Prime Video Broadcast', 'paid', 'Prime'],
+    [15, 19.5, 'ESPN Broadcast', 'paid', 'ESPN'],
+    [20, 23, 'ESPN Replay', 'cable', 'ESPN Re'],
+  ],
+  sat: [
+    [9.25, 19.5, 'Featured Groups — Masters.com FREE', 'free', 'Featured'],
+    [8.75, 15.5, 'Holes 4,5,6 — Masters.com FREE', 'free', '4-5-6'],
+    [10.75, 18, 'Amen Corner — Masters.com FREE', 'free', 'Amen'],
+    [11.75, 19, 'Holes 15,16 — Masters.com FREE', 'free', '15-16'],
+    [12, 14, 'Paramount+ Early Coverage', 'paid', 'P+'],
+    [14, 19, 'CBS Broadcast', 'free', 'CBS'],
+  ],
+  sun: [
+    [10.25, 19, 'Featured Groups — Masters.com FREE', 'free', 'Featured'],
+    [8.75, 15.5, 'Holes 4,5,6 — Masters.com FREE', 'free', '4-5-6'],
+    [10.75, 18, 'Amen Corner — Masters.com FREE', 'free', 'Amen'],
+    [11.75, 19, 'Holes 15,16 — Masters.com FREE', 'free', '15-16'],
+    [12, 14, 'Paramount+ Early Coverage', 'paid', 'P+'],
+    [14, 19, 'CBS Broadcast', 'free', 'CBS'],
+  ]
+};
+
+// All day: Every Shot Every Hole on Masters.com (noted in text, not timeline)
+const ROUND_HOURS = 4.5; // estimated round duration
+
+// Player data: [name, group partners, thu tee time (decimal ET), fri tee time (decimal ET)]
+// Tee times from 2026 Masters published pairings
+const PLAYERS = [
+  // Group 1
+  ['Scottie Scheffler', 'Robert MacIntyre, Gary Woodland', 13.73, 10.32],
+  ['Robert MacIntyre', 'Scottie Scheffler, Gary Woodland', 13.73, 10.32],
+  ['Gary Woodland', 'Scottie Scheffler, Robert MacIntyre', 13.73, 10.32],
+  // Group 2
+  ['Rory McIlroy', 'Cameron Smith, Justin Thomas', 10.53, 13.95],
+  ['Cameron Smith', 'Rory McIlroy, Justin Thomas', 10.53, 13.95],
+  ['Justin Thomas', 'Rory McIlroy, Cameron Smith', 10.53, 13.95],
+  // Group 3
+  ['Bryson DeChambeau', 'Hideki Matsuyama, Adam Scott', 12.32, 8.53],
+  ['Hideki Matsuyama', 'Bryson DeChambeau, Adam Scott', 12.32, 8.53],
+  ['Adam Scott', 'Bryson DeChambeau, Hideki Matsuyama', 12.32, 8.53],
+  // Group 4
+  ['Jon Rahm', 'Collin Morikawa, Tiger Woods', 14.18, 10.77],
+  ['Collin Morikawa', 'Jon Rahm, Tiger Woods', 14.18, 10.77],
+  ['Tiger Woods', 'Jon Rahm, Collin Morikawa', 14.18, 10.77],
+  // Group 5
+  ['Jordan Spieth', 'Tommy Fleetwood, Keegan Bradley', 11.42, 14.83],
+  ['Tommy Fleetwood', 'Jordan Spieth, Keegan Bradley', 11.42, 14.83],
+  ['Keegan Bradley', 'Jordan Spieth, Tommy Fleetwood', 11.42, 14.83],
+  // Group 6
+  ['Xander Schauffele', 'Wyndham Clark, Tom Kim', 13.28, 9.87],
+  ['Wyndham Clark', 'Xander Schauffele, Tom Kim', 13.28, 9.87],
+  ['Tom Kim', 'Xander Schauffele, Wyndham Clark', 13.28, 9.87],
+  // Group 7
+  ['Brooks Koepka', 'Viktor Hovland, Patrick Cantlay', 10.98, 14.38],
+  ['Viktor Hovland', 'Brooks Koepka, Patrick Cantlay', 10.98, 14.38],
+  ['Patrick Cantlay', 'Brooks Koepka, Viktor Hovland', 10.98, 14.38],
+  // Group 8
+  ['Dustin Johnson', 'Sergio Garcia, Phil Mickelson', 8.53, 12.0],
+  ['Sergio Garcia', 'Dustin Johnson, Phil Mickelson', 8.53, 12.0],
+  ['Phil Mickelson', 'Dustin Johnson, Sergio Garcia', 8.53, 12.0],
+  // Group 9
+  ['Shane Lowry', 'Sahith Theegala, Russell Henley', 11.87, 8.08],
+  ['Sahith Theegala', 'Shane Lowry, Russell Henley', 11.87, 8.08],
+  ['Russell Henley', 'Shane Lowry, Sahith Theegala', 11.87, 8.08],
+  // Group 10
+  ['Ludvig Åberg', 'Max Homa, Joaquín Niemann', 9.42, 12.87],
+  ['Max Homa', 'Ludvig Åberg, Joaquín Niemann', 9.42, 12.87],
+  ['Joaquín Niemann', 'Ludvig Åberg, Max Homa', 9.42, 12.87],
+  // Group 11
+  ['Patrick Reed', 'Sungjae Im, Corey Conners', 8.08, 11.55],
+  ['Sungjae Im', 'Patrick Reed, Corey Conners', 8.08, 11.55],
+  ['Corey Conners', 'Patrick Reed, Sungjae Im', 8.08, 11.55],
+  // Group 12
+  ['Tony Finau', 'Will Zalatoris, Sam Burns', 12.77, 9.32],
+  ['Will Zalatoris', 'Tony Finau, Sam Burns', 12.77, 9.32],
+  ['Sam Burns', 'Tony Finau, Will Zalatoris', 12.77, 9.32],
+  // Group 13
+  ['Matt Fitzpatrick', 'Brian Harman, Chris Kirk', 9.87, 13.28],
+  ['Brian Harman', 'Matt Fitzpatrick, Chris Kirk', 9.87, 13.28],
+  ['Chris Kirk', 'Matt Fitzpatrick, Brian Harman', 9.87, 13.28],
+  // Group 14
+  ['Min Woo Lee', 'Sepp Straka, Denny McCarthy', 14.62, 11.1],
+  ['Sepp Straka', 'Min Woo Lee, Denny McCarthy', 14.62, 11.1],
+  ['Denny McCarthy', 'Min Woo Lee, Sepp Straka', 14.62, 11.1],
+  // Group 15
+  ['Jason Day', 'Nick Dunlap, Akshay Bhatia', 10.08, 13.5],
+  ['Nick Dunlap', 'Jason Day, Akshay Bhatia', 10.08, 13.5],
+  ['Akshay Bhatia', 'Jason Day, Nick Dunlap', 10.08, 13.5],
+  // Group 16
+  ['Cameron Young', 'Davis Thompson, Byeong Hun An', 8.97, 12.43],
+  ['Davis Thompson', 'Cameron Young, Byeong Hun An', 8.97, 12.43],
+  ['Byeong Hun An', 'Cameron Young, Davis Thompson', 8.97, 12.43],
+  // Group 17
+  ['Tyrrell Hatton', 'Stephan Jaeger, José Luis Ballester', 13.5, 10.08],
+  ['Stephan Jaeger', 'Tyrrell Hatton, José Luis Ballester', 13.5, 10.08],
+  ['José Luis Ballester', 'Tyrrell Hatton, Stephan Jaeger', 13.5, 10.08],
+  // Group 18
+  ['Lucas Glover', 'Si Woo Kim, Angel Cabrera', 9.2, 12.65],
+  ['Si Woo Kim', 'Lucas Glover, Angel Cabrera', 9.2, 12.65],
+  ['Angel Cabrera', 'Lucas Glover, Si Woo Kim', 9.2, 12.65],
+  // Group 19
+  ['Fred Couples', 'Sandy Lyle, Larry Mize', 8.3, 11.77],
+  ['Sandy Lyle', 'Fred Couples, Larry Mize', 8.3, 11.77],
+  ['Larry Mize', 'Fred Couples, Sandy Lyle', 8.3, 11.77],
+  // Group 20
+  ['Vijay Singh', 'Mike Weir, José María Olazábal', 8.75, 12.2],
+  ['Mike Weir', 'Vijay Singh, José María Olazábal', 8.75, 12.2],
+  ['José María Olazábal', 'Vijay Singh, Mike Weir', 8.75, 12.2],
+  // Group 21
+  ['Ben Crenshaw', 'Jackie Burke Jr., Jack Nicklaus', 8.0, 8.0],
+  ['Jack Nicklaus', 'Ben Crenshaw, Jackie Burke Jr.', 8.0, 8.0],
+  // Group 22
+  ['Bubba Watson', 'Zach Johnson, Danny Willett', 11.1, 14.62],
+  ['Zach Johnson', 'Bubba Watson, Danny Willett', 11.1, 14.62],
+  ['Danny Willett', 'Bubba Watson, Zach Johnson', 11.1, 14.62],
+  // Group 23
+  ['Taylor Moore', 'Nico Echavarria, Aaron Rai', 9.65, 13.05],
+  ['Nico Echavarria', 'Taylor Moore, Aaron Rai', 9.65, 13.05],
+  ['Aaron Rai', 'Taylor Moore, Nico Echavarria', 9.65, 13.05],
+  // Group 24
+  ['Justin Rose', 'Charl Schwartzel, Webb Simpson', 11.55, 14.98],
+  ['Charl Schwartzel', 'Justin Rose, Webb Simpson', 11.55, 14.98],
+  ['Webb Simpson', 'Justin Rose, Charl Schwartzel', 11.55, 14.98],
+  // Group 25
+  ['Tom Hoge', 'Eric Cole, Jake Knapp', 12.0, 8.53],
+  ['Eric Cole', 'Tom Hoge, Jake Knapp', 12.0, 8.53],
+  ['Jake Knapp', 'Tom Hoge, Eric Cole', 12.0, 8.53],
+  // Group 26
+  ['J.T. Poston', 'Matthieu Pavon, Christiaan Bezuidenhout', 10.32, 13.73],
+  ['Matthieu Pavon', 'J.T. Poston, Christiaan Bezuidenhout', 10.32, 13.73],
+  ['Christiaan Bezuidenhout', 'J.T. Poston, Matthieu Pavon', 10.32, 13.73],
+  // Group 27
+  ['Mackenzie Hughes', 'Luke List, Michael Thorbjornsen', 14.38, 10.98],
+  ['Luke List', 'Mackenzie Hughes, Michael Thorbjornsen', 14.38, 10.98],
+  ['Michael Thorbjornsen', 'Mackenzie Hughes, Luke List', 14.38, 10.98],
+  // Group 28
+  ['Billy Horschel', 'Thomas Detry, Santiago de la Fuente', 12.43, 8.97],
+  ['Thomas Detry', 'Billy Horschel, Santiago de la Fuente', 12.43, 8.97],
+  ['Santiago de la Fuente', 'Billy Horschel, Thomas Detry', 12.43, 8.97],
+  // Group 29
+  ['Brian Campbell', 'Noah Kent, Hiroshi Tai', 14.98, 11.55],
+  ['Noah Kent', 'Brian Campbell, Hiroshi Tai', 14.98, 11.55],
+  ['Hiroshi Tai', 'Brian Campbell, Noah Kent', 14.98, 11.55],
+  // Group 30
+  ['Nick Taylor', 'Aldrich Potgieter, Jackson Koivun', 13.05, 9.65],
+  ['Aldrich Potgieter', 'Nick Taylor, Jackson Koivun', 13.05, 9.65],
+  ['Jackson Koivun', 'Nick Taylor, Aldrich Potgieter', 13.05, 9.65],
+];
+
+// State
+let currentDay = 'thu';
+let favs = JSON.parse(localStorage.getItem('masters_favs') || '[]');
+let showFavsOnly = false;
+let showFreeOnly = false;
+
+function decToTime(d) {
+  const h = Math.floor(d);
+  const m = Math.round((d - h) * 60);
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${h12}:${m.toString().padStart(2,'0')}${ampm}`;
+}
+
+function initTabs() {
+  const cont = document.getElementById('dayTabs');
+  DAYS.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (d.key === currentDay ? ' active' : '');
+    btn.textContent = d.label;
+    btn.onclick = () => { currentDay = d.key; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); render(); };
+    cont.appendChild(btn);
+  });
+}
+
+function toggleFav(name) {
+  const i = favs.indexOf(name);
+  if (i >= 0) favs.splice(i, 1); else favs.push(name);
+  localStorage.setItem('masters_favs', JSON.stringify(favs));
+  render();
+}
+
+function toggleFavFilter() {
+  showFavsOnly = !showFavsOnly;
+  document.getElementById('favFilter').classList.toggle('active', showFavsOnly);
+  render();
+}
+
+function toggleFreeOnly() {
+  showFreeOnly = !showFreeOnly;
+  document.getElementById('freeFilter').classList.toggle('active', showFreeOnly);
+  render();
+}
+
+function clearSearch() {
+  document.getElementById('search').value = '';
+  document.getElementById('clearBtn').style.display = 'none';
+  render();
+}
+
+function getPlayerTee(p, day) {
+  if (day === 'thu') return p[2];
+  if (day === 'fri') return p[3];
+  return null; // sat/sun TBD
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  document.getElementById('clearBtn').style.display = q ? 'block' : 'none';
+  const cont = document.getElementById('results');
+  const isWeekend = currentDay === 'sat' || currentDay === 'sun';
+
+  let filtered = PLAYERS.filter(p => {
+    if (showFavsOnly && !favs.includes(p[0])) return false;
+    if (q && !p[0].toLowerCase().includes(q) && !p[1].toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  // Sort: favorites first, then by tee time
+  filtered.sort((a, b) => {
+    const af = favs.includes(a[0]) ? 0 : 1;
+    const bf = favs.includes(b[0]) ? 0 : 1;
+    if (af !== bf) return af - bf;
+    const at = getPlayerTee(a, currentDay) || 99;
+    const bt = getPlayerTee(b, currentDay) || 99;
+    return at - bt;
+  });
+
+  // Deduplicate by group for display (show group card, not individual duplicates)
+  const seen = new Set();
+  const groups = [];
+  filtered.forEach(p => {
+    const key = p[1] + '|' + p[0]; // unique enough
+    const groupKey = [p[0], ...p[1].split(', ')].sort().join('|');
+    if (!seen.has(groupKey)) {
+      seen.add(groupKey);
+      // Collect all matching players in this group
+      const groupPlayers = filtered.filter(gp => {
+        const gk = [gp[0], ...gp[1].split(', ')].sort().join('|');
+        return gk === groupKey;
+      });
+      groups.push({ players: groupPlayers, tee: getPlayerTee(p, currentDay), partners: p[1] });
+    }
+  });
+
+  if (groups.length === 0) {
+    cont.innerHTML = '<div class="no-results">No players found. Try a different search.</div>';
+    return;
+  }
+
+  let html = '';
+
+  if (isWeekend) {
+    html += '<div class="weekend-note"><strong>Sat/Sun tee times TBD</strong> — Set after the cut on Friday evening. Coverage windows shown below apply to all players still in the field.</div>';
+  }
+
+  groups.forEach(g => {
+    const names = g.players.map(p => p[0]);
+    const allNames = [names[0], ...g.players[0][1].split(', ')].filter((v,i,a) => a.indexOf(v) === i);
+    const teeTime = g.tee;
+    const isFav = names.some(n => favs.includes(n));
+
+    html += '<div class="player-card">';
+    html += '<div class="card-header"><div>';
+    html += `<div class="player-name">${allNames.join(' · ')}</div>`;
+    if (!isWeekend && teeTime) {
+      html += `<div class="tee-time">${decToTime(teeTime)} ET</div>`;
+    }
+    html += '</div><div style="display:flex;gap:2px;">';
+    allNames.forEach(n => {
+      html += `<button class="star-btn ${favs.includes(n)?'fav':''}" onclick="toggleFav('${n.replace(/'/g,"\\'")}')">★</button>`;
+    });
+    html += '</div></div>';
+
+    // Timeline
+    const TL_START = 8; // 8am
+    const TL_END = 23; // 11pm
+    const TL_RANGE = TL_END - TL_START;
+
+    html += '<div class="time-labels"><span>8am</span><span>11am</span><span>2pm</span><span>5pm</span><span>8pm</span><span>11pm</span></div>';
+    html += '<div class="timeline">';
+
+    // On-course window (if tee time known)
+    if (teeTime && !isWeekend) {
+      const onStart = Math.max(teeTime, TL_START);
+      const onEnd = Math.min(teeTime + ROUND_HOURS, TL_END);
+      const left = ((onStart - TL_START) / TL_RANGE) * 100;
+      const width = ((onEnd - onStart) / TL_RANGE) * 100;
+      html += `<div class="tl-block oncourse" style="left:${left}%;width:${width}%" title="Estimated on-course: ${decToTime(teeTime)}–${decToTime(teeTime+ROUND_HOURS)}"></div>`;
+    }
+
+    // Coverage blocks
+    const cov = COVERAGE[currentDay] || [];
+    // Stack rows to avoid overlap visually
+    cov.forEach((c, ci) => {
+      if (showFreeOnly && c[3] !== 'free') return;
+      const cStart = Math.max(c[0], TL_START);
+      const cEnd = Math.min(c[1], TL_END);
+      if (cEnd <= cStart) return;
+      const left = ((cStart - TL_START) / TL_RANGE) * 100;
+      const width = ((cEnd - cStart) / TL_RANGE) * 100;
+      const label = width > 6 ? c[4] : '';
+      html += `<div class="tl-block ${c[3]}" style="left:${left}%;width:${width}%;height:32%;top:${(ci % 3) * 34}%" title="${c[2]}: ${decToTime(c[0])}–${decToTime(c[1])}">${label}</div>`;
+    });
+
+    html += '</div>';
+
+    // Coverage list
+    html += '<div class="coverage-list">';
+    cov.forEach(c => {
+      if (showFreeOnly && c[3] !== 'free') return;
+      // Check if this coverage overlaps with player's on-course time (or show all on weekend)
+      const relevant = isWeekend || !teeTime || (c[1] > teeTime && c[0] < teeTime + ROUND_HOURS) || c[2].includes('Replay') || c[2].includes('CBS') || c[2].includes('Broadcast') || c[2].includes('Every Shot');
+      if (!relevant && !isWeekend) return;
+      html += `<div class="cov-item"><span class="cov-dot ${c[3]}"></span>${c[2]} <span class="cov-label">${decToTime(c[0])}–${decToTime(c[1])}</span></div>`;
+    });
+    html += '<div class="cov-item"><span class="cov-dot free"></span>Every Shot, Every Hole — Masters.com <span class="cov-label">All day FREE</span></div>';
+    html += '</div>';
+
+    html += '</div>';
+  });
+
+  cont.innerHTML = html;
+}
+
+// Init
+document.getElementById('search').addEventListener('input', render);
+initTabs();
+render();
+</script>
+</body>
+</html>
